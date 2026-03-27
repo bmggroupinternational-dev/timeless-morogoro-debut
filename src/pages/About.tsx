@@ -1,8 +1,22 @@
 import { motion } from "framer-motion";
-import { Heart, MapPin, Users } from "lucide-react";
+import { Heart, MapPin, Users, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionHeading from "@/components/SectionHeading";
+import hotelExterior from "@/assets/hotel-exterior.jpeg";
+import hotelCorridor from "@/assets/hotel-corridor.jpeg";
+import hotelMountainView from "@/assets/hotel-mountain-view.jpeg";
+import hotelSuite from "@/assets/hotel-suite.jpeg";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, delay: i * 0.15, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+};
 
 const values = [
   { icon: Heart, title: "Warmth & Care", desc: "Every guest is family. We go above and beyond to make your stay truly special." },
@@ -15,35 +29,30 @@ const About = () => (
     <Navbar />
 
     {/* Hero */}
-    <section className="relative h-[60vh] flex items-center justify-center overflow-hidden mt-20">
+    <section className="relative h-[70vh] flex items-end overflow-hidden mt-20">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=1920&h=800&fit=crop')" }}
+        style={{ backgroundImage: `url(${hotelExterior})` }}
       />
-      <div className="absolute inset-0 bg-foreground/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent" />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 text-center"
+        className="relative z-10 container mx-auto px-4 pb-16"
       >
-        <h1 className="font-heading text-5xl md:text-6xl text-background mb-4">About Us</h1>
-        <div className="gold-divider" />
+        <span className="font-body text-xs tracking-[0.4em] uppercase text-primary block mb-3">Our Heritage</span>
+        <h1 className="font-heading text-5xl md:text-7xl text-background">About Us</h1>
       </motion.div>
     </section>
 
     {/* Story */}
-    <section className="py-24 bg-background">
+    <section className="py-28 bg-background">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <span className="font-body text-xs tracking-[0.3em] uppercase text-primary">Our Heritage</span>
-            <h2 className="font-heading text-3xl md:text-4xl mt-2 mb-6">A Story of Timeless Hospitality</h2>
+            <h2 className="font-heading text-3xl md:text-5xl mt-2 mb-6">A Story of Timeless Hospitality</h2>
             <p className="font-body text-muted-foreground leading-relaxed mb-4">
               Founded with a vision to bring world-class hospitality to the heart of Tanzania, Timeless Morogoro Hotel stands as a beacon of elegance and comfort. Our journey began with a simple belief: that every traveler deserves an experience that transcends the ordinary.
             </p>
@@ -54,36 +63,27 @@ const About = () => (
               Whether you're here for business or leisure, a weekend getaway or an extended stay, we promise an experience that will stay with you long after you leave.
             </p>
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="overflow-hidden rounded-sm"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=700&h=900&fit=crop"
-              alt="Hotel exterior"
-              className="w-full h-[500px] object-cover"
-            />
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="overflow-hidden rounded-2xl">
+            <img src={hotelCorridor} alt="Hotel corridor" className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-1000" />
           </motion.div>
         </div>
       </div>
     </section>
 
     {/* Values */}
-    <section className="py-24 bg-secondary">
+    <section className="py-28 bg-secondary">
       <div className="container mx-auto px-4">
         <SectionHeading subtitle="What We Stand For" title="Our Values" />
         <div className="grid md:grid-cols-3 gap-8">
           {values.map((v, i) => (
             <motion.div
               key={v.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="text-center p-8 bg-background rounded-sm"
+              variants={fadeUp}
+              custom={i}
+              className="text-center p-8 bg-background rounded-2xl hover:shadow-xl transition-shadow duration-500"
             >
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <v.icon size={26} className="text-primary" />
@@ -97,19 +97,26 @@ const About = () => (
     </section>
 
     {/* Location */}
-    <section className="py-24 bg-background">
-      <div className="container mx-auto px-4 text-center">
-        <SectionHeading
-          subtitle="Our Location"
-          title="Heart of Morogoro"
-          description="Located in the vibrant town of Morogoro, nestled at the foot of the majestic Uluguru Mountains. Easy access to national parks, local markets, and natural attractions."
-        />
-        <div className="overflow-hidden rounded-sm max-w-4xl mx-auto">
-          <img
-            src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1200&h=500&fit=crop"
-            alt="Morogoro landscape"
-            className="w-full h-80 object-cover"
-          />
+    <section className="py-28 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="overflow-hidden rounded-2xl">
+            <img src={hotelMountainView} alt="Uluguru Mountains view" className="w-full h-[450px] object-cover hover:scale-105 transition-transform duration-1000" />
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}>
+            <span className="font-body text-xs tracking-[0.3em] uppercase text-primary">Our Location</span>
+            <h2 className="font-heading text-3xl md:text-4xl mt-2 mb-6">Heart of Morogoro</h2>
+            <p className="font-body text-muted-foreground leading-relaxed mb-6">
+              Located in the vibrant town of Morogoro, nestled at the foot of the majestic Uluguru Mountains. Easy access to national parks, local markets, and natural attractions.
+            </p>
+            <Link
+              to="/rooms"
+              className="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground font-body text-sm tracking-wider uppercase hover:bg-hotel-dark-gold transition-all duration-300 group"
+            >
+              Explore Rooms
+              <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>
