@@ -3,6 +3,19 @@ import { Clock, Utensils, Waves, Dumbbell, Leaf } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionHeading from "@/components/SectionHeading";
+import hotelRobe from "@/assets/hotel-robe.jpeg";
+import hotelCorridor from "@/assets/hotel-corridor.jpeg";
+import hotelMountainView from "@/assets/hotel-mountain-view.jpeg";
+import hotelSuite from "@/assets/hotel-suite.jpeg";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, delay: i * 0.15, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+};
 
 const menuHighlights = [
   { name: "Grilled Tilapia", desc: "Fresh Lake Victoria tilapia with coconut rice and tropical salsa", price: "$18" },
@@ -17,21 +30,21 @@ const facilities = [
     title: "Swimming Pool",
     desc: "A stunning outdoor pool surrounded by lush tropical gardens. Perfect for relaxation under the Tanzanian sun.",
     hours: "7:00 AM – 9:00 PM",
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=700&h=400&fit=crop",
+    image: hotelMountainView,
   },
   {
     icon: Leaf,
     title: "Spa & Wellness",
     desc: "Rejuvenate with our signature treatments inspired by traditional African healing practices and modern wellness techniques.",
     hours: "9:00 AM – 8:00 PM",
-    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=700&h=400&fit=crop",
+    image: hotelRobe,
   },
   {
     icon: Dumbbell,
     title: "Fitness Center",
     desc: "State-of-the-art equipment in a modern facility for guests who wish to maintain their fitness routine.",
     hours: "6:00 AM – 10:00 PM",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&h=400&fit=crop",
+    image: hotelCorridor,
   },
 ];
 
@@ -40,25 +53,27 @@ const Dining = () => (
     <Navbar />
 
     {/* Hero */}
-    <section className="relative h-[60vh] flex items-center justify-center overflow-hidden mt-20">
+    <section className="relative h-[70vh] flex items-end overflow-hidden mt-20">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&h=800&fit=crop')" }}
+        style={{ backgroundImage: `url(${hotelSuite})` }}
       />
-      <div className="absolute inset-0 bg-foreground/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent" />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 text-center"
+        className="relative z-10 container mx-auto px-4 pb-16"
       >
-        <h1 className="font-heading text-5xl md:text-6xl text-background mb-4">Dining & Amenities</h1>
-        <div className="gold-divider" />
+        <span className="font-body text-xs tracking-[0.4em] uppercase text-primary block mb-3">Culinary Excellence</span>
+        <h1 className="font-heading text-5xl md:text-7xl text-background">
+          Dining &<br /><span className="text-primary italic">Amenities</span>
+        </h1>
       </motion.div>
     </section>
 
     {/* Restaurant */}
-    <section className="py-24 bg-background">
+    <section className="py-28 bg-background">
       <div className="container mx-auto px-4">
         <SectionHeading
           subtitle="Culinary Excellence"
@@ -66,25 +81,10 @@ const Dining = () => (
           description="Savor a fusion of local Tanzanian flavors and international cuisine, prepared by our world-class chefs using the freshest local ingredients."
         />
         <div className="grid md:grid-cols-2 gap-12 items-center mt-8">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="overflow-hidden rounded-sm"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=700&h=500&fit=crop"
-              alt="Restaurant interior"
-              className="w-full h-96 object-cover"
-            />
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="overflow-hidden rounded-2xl">
+            <img src={hotelRobe} alt="Dining experience" className="w-full h-96 object-cover hover:scale-105 transition-transform duration-1000" />
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}>
             <div className="flex items-center gap-2 text-primary mb-6">
               <Clock size={18} />
               <span className="font-body text-sm">Breakfast: 6:30–10:00 AM • Lunch: 12:00–3:00 PM • Dinner: 6:30–10:30 PM</span>
@@ -107,21 +107,21 @@ const Dining = () => (
     </section>
 
     {/* Facilities */}
-    <section className="py-24 bg-secondary">
+    <section className="py-28 bg-secondary">
       <div className="container mx-auto px-4">
         <SectionHeading subtitle="Leisure & Wellness" title="Hotel Facilities" />
         <div className="space-y-16">
           {facilities.map((f, i) => (
             <motion.div
               key={f.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className={`grid md:grid-cols-2 gap-10 items-center ${i % 2 === 1 ? "" : ""}`}
+              variants={fadeUp}
+              className="grid md:grid-cols-2 gap-10 items-center"
             >
-              <div className={`overflow-hidden rounded-sm ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                <img src={f.image} alt={f.title} className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+              <div className={`overflow-hidden rounded-2xl ${i % 2 === 1 ? "md:order-2" : ""}`}>
+                <img src={f.image} alt={f.title} className="w-full h-72 object-cover hover:scale-105 transition-transform duration-1000" />
               </div>
               <div className={i % 2 === 1 ? "md:order-1" : ""}>
                 <div className="flex items-center gap-3 mb-3">
