@@ -1,8 +1,11 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Utensils, Bed, Waves, Users, ArrowUpRight, Star } from "lucide-react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { Utensils, Bed, Waves, Users, ArrowUpRight, Star, ArrowDown } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TextReveal from "@/components/TextReveal";
+import RoomCarousel from "@/components/RoomCarousel";
 import hotelPromo from "@/assets/hotel-promo.png";
 import hotelSuite from "@/assets/hotel-suite.jpeg";
 import hotelCorridor from "@/assets/hotel-corridor.jpeg";
@@ -14,85 +17,126 @@ import hotelExterior from "@/assets/hotel-exterior.jpeg";
 import hotelMountainView from "@/assets/hotel-mountain-view.jpeg";
 import hotelBedroomWindow from "@/assets/hotel-bedroom-window.jpeg";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, delay: i * 0.15, ease: [0.25, 0.46, 0.45, 0.94] },
-  }),
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12 } },
 };
 
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
+const slideUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
+const scaleReveal = {
+  hidden: { opacity: 0, scale: 0.92, y: 30 },
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+    y: 0,
+    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
 const facilities = [
-  { icon: Utensils, label: "Dining & Culinary Options", image: hotelRobe },
+  { icon: Utensils, label: "Dining & Culinary", image: hotelRobe },
   { icon: Bed, label: "Luxurious Rooms", image: hotelSuite },
   { icon: Waves, label: "Swimming Pool", image: hotelMountainView },
-  { icon: Users, label: "Meeting & Event Spaces", image: hotelCorridor },
+  { icon: Users, label: "Event Spaces", image: hotelCorridor },
 ];
 
-const rooms = [
+const carouselRooms = [
   {
     name: "Presidential Suite",
+    subtitle: "Ultimate luxury experience",
+    price: "$200",
     beds: "3 King Beds",
     guests: "6 Person",
     image: hotelRoomWide,
   },
   {
     name: "Deluxe Suite",
+    subtitle: "Refined elegance",
+    price: "$120",
     beds: "2 King Beds",
     guests: "4 Person",
     image: hotelSuite,
   },
   {
     name: "Executive Room",
+    subtitle: "Modern comfort",
+    price: "$85",
     beds: "1 King Bed",
     guests: "2 Person",
     image: hotelRoomBright,
   },
+  {
+    name: "Standard Room",
+    subtitle: "Essential comfort",
+    price: "$55",
+    beds: "1 Double Bed",
+    guests: "2 Person",
+    image: hotelBedroomWindow,
+  },
 ];
 
-const galleryImages = [hotelCorridor, hotelRobe, hotelBathroom, hotelMountainView];
+const galleryImages = [
+  { src: hotelCorridor, alt: "Corridor" },
+  { src: hotelRobe, alt: "Details" },
+  { src: hotelBathroom, alt: "Bathroom" },
+  { src: hotelMountainView, alt: "Views" },
+  { src: hotelRoomWide, alt: "Suite" },
+  { src: hotelExterior, alt: "Exterior" },
+];
 
 const Index = () => {
-  const { scrollYProgress } = useScroll();
-  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.1]);
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  const welcomeRef = useRef(null);
+  const welcomeInView = useInView(welcomeRef, { once: true, margin: "-100px" });
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <Navbar />
 
-      {/* Hero — HotelBeach inspired */}
-      <section className="relative h-screen flex items-end overflow-hidden">
+      {/* ─── HERO ─── */}
+      <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
         <motion.div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${hotelPromo})`,
-            scale: heroScale,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent" />
+          className="absolute inset-0"
+          style={{ y: heroY }}
+        >
+          <motion.img
+            src={hotelPromo}
+            alt="Timeless Morogoro Hotel"
+            className="w-full h-[120%] object-cover"
+            initial={{ scale: 1.2 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/40 to-foreground/80" />
 
-        {/* Circular Book button — top right */}
+        {/* Circular Book CTA */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.8, ease: "backOut" }}
-          className="absolute top-28 right-8 md:right-16 z-10"
+          initial={{ opacity: 0, scale: 0, rotate: -180 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ duration: 1.2, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute top-24 right-6 md:right-16 z-10"
         >
           <Link
             to="/rooms"
-            className="w-32 h-32 md:w-36 md:h-36 rounded-full bg-primary/90 backdrop-blur-sm flex flex-col items-center justify-center text-primary-foreground hover:bg-primary transition-all duration-500 hover:scale-110 shadow-2xl"
+            className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-primary flex flex-col items-center justify-center text-primary-foreground hover:scale-110 transition-transform duration-500 shadow-[0_0_60px_rgba(184,134,11,0.3)]"
           >
-            <span className="font-heading text-sm md:text-base leading-tight text-center">
+            <span className="font-heading text-xs md:text-sm leading-tight text-center">
               Book Your
               <br />
               Stay
@@ -100,133 +144,205 @@ const Index = () => {
           </Link>
         </motion.div>
 
-        <div className="relative z-10 container mx-auto px-4 pb-16 md:pb-24">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={0}
-          >
-            <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl text-background leading-[1.05] max-w-3xl">
-              Your Gateway to{" "}
-              <span className="text-primary italic">Unforgettable</span>{" "}
-              Memories
-            </h1>
+        <div className="relative z-10 container mx-auto px-4 flex flex-col items-start justify-end h-full pb-20 md:pb-28">
+          <motion.div initial="hidden" animate="visible" variants={stagger}>
+            <div className="overflow-hidden">
+              <motion.span
+                variants={slideUp}
+                className="block font-body text-xs md:text-sm tracking-[0.5em] uppercase text-primary mb-4"
+              >
+                Timeless Morogoro Hotel
+              </motion.span>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h1
+                variants={slideUp}
+                className="font-heading text-5xl md:text-7xl lg:text-[6.5rem] text-background leading-[1] max-w-4xl"
+              >
+                Your Gateway to
+              </motion.h1>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h1
+                variants={slideUp}
+                className="font-heading text-5xl md:text-7xl lg:text-[6.5rem] text-primary italic leading-[1]"
+              >
+                Unforgettable
+              </motion.h1>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h1
+                variants={slideUp}
+                className="font-heading text-5xl md:text-7xl lg:text-[6.5rem] text-background leading-[1]"
+              >
+                Memories
+              </motion.h1>
+            </div>
           </motion.div>
 
           <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            custom={2}
-            className="mt-8 flex flex-col md:flex-row md:items-end justify-between gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
+            className="mt-10 flex flex-col md:flex-row md:items-end justify-between w-full gap-6"
           >
-            <p className="font-body text-background/80 max-w-md text-base leading-relaxed">
+            <p className="font-body text-background/70 max-w-md text-sm md:text-base leading-relaxed">
               Experience exquisite accommodations, world-class amenities, and personalized service tailored to exceed your expectations.
             </p>
             <Link
               to="/rooms"
-              className="inline-flex items-center gap-3 h-14 px-8 rounded-full border border-background/30 text-background font-body text-sm tracking-wider uppercase hover:bg-background/10 transition-all duration-300 group w-fit"
+              className="inline-flex items-center gap-3 h-14 px-8 rounded-full border border-background/20 text-background font-body text-sm tracking-wider uppercase hover:bg-background hover:text-foreground transition-all duration-500 group w-fit backdrop-blur-sm"
             >
               View Rooms
-              <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
             </Link>
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
+          style={{ opacity: heroOpacity }}
+        >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+          >
+            <ArrowDown size={20} className="text-background/50" />
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* Welcome — Two images side by side */}
-      <section className="py-28 bg-background overflow-hidden">
+      {/* ─── WELCOME ─── */}
+      <section className="py-32 bg-background overflow-hidden" ref={welcomeRef}>
         <div className="container mx-auto px-4">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUp}
-            className="text-center mb-16"
+            initial={{ opacity: 0 }}
+            animate={welcomeInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-8"
           >
-            <span className="font-body text-xs tracking-[0.4em] uppercase text-primary">
+            <span className="font-body text-[10px] tracking-[0.5em] uppercase text-primary">
               Welcome to The World of
             </span>
-            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl mt-3 mb-6">
-              Luxury and Comfort
-            </h2>
-            <p className="font-body text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Experience a stay like no other, where indulgence knows no bounds and your every desire is our priority. Join us in redefining the art of hospitality.
-            </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="overflow-hidden text-center mb-6">
+            <motion.h2
+              initial={{ y: "100%" }}
+              animate={welcomeInView ? { y: 0 } : {}}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-heading text-5xl md:text-6xl lg:text-8xl"
+            >
+              Luxury <span className="text-primary italic">&</span> Comfort
+            </motion.h2>
+          </div>
+
+          <TextReveal
+            className="font-body text-muted-foreground max-w-2xl mx-auto leading-relaxed text-center text-sm md:text-base mb-20"
+            delay={0.5}
+          >
+            Experience a stay like no other, where indulgence knows no bounds and your every desire is our priority. Join us in redefining the art of hospitality, and let us pamper you in a world where luxury and comfort intertwine seamlessly.
+          </TextReveal>
+
+          {/* Two images — asymmetric layout */}
+          <div className="grid md:grid-cols-[1.3fr_1fr] gap-5 items-end">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              variants={scaleIn}
-              className="overflow-hidden rounded-2xl"
+              variants={scaleReveal}
+              className="overflow-hidden rounded-3xl"
             >
-              <img
+              <motion.img
+                whileHover={{ scale: 1.04 }}
+                transition={{ duration: 1 }}
                 src={hotelCorridor}
                 alt="Hotel corridor"
-                className="w-full h-[400px] md:h-[500px] object-cover hover:scale-105 transition-transform duration-1000"
+                className="w-full h-[350px] md:h-[550px] object-cover"
               />
             </motion.div>
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              variants={scaleIn}
-              className="overflow-hidden rounded-2xl"
+              variants={scaleReveal}
+              className="overflow-hidden rounded-3xl"
             >
-              <img
+              <motion.img
+                whileHover={{ scale: 1.04 }}
+                transition={{ duration: 1 }}
                 src={hotelSuite}
                 alt="Hotel suite"
-                className="w-full h-[400px] md:h-[500px] object-cover hover:scale-105 transition-transform duration-1000"
+                className="w-full h-[300px] md:h-[450px] object-cover"
               />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Facilities — Scrolling cards */}
-      <section className="py-28 bg-foreground">
+      {/* ─── FACILITIES ─── */}
+      <section className="py-32 bg-foreground overflow-hidden">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="text-center mb-16"
-          >
-            <span className="font-body text-xs tracking-[0.4em] uppercase text-primary">
-              Facilities and
-            </span>
-            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl mt-3 mb-6 text-background">
-              Services
-            </h2>
-            <p className="font-body text-background/70 max-w-2xl mx-auto leading-relaxed">
-              Discover a realm where opulence meets tranquility, where every moment is a symphony of relaxation and refinement.
-            </p>
-          </motion.div>
+          <div className="grid md:grid-cols-2 gap-12 mb-20">
+            <div>
+              <motion.span
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="font-body text-[10px] tracking-[0.5em] uppercase text-primary block mb-4"
+              >
+                Facilities and Services
+              </motion.span>
+              <div className="overflow-hidden">
+                <motion.h2
+                  initial={{ y: "100%" }}
+                  whileInView={{ y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-heading text-4xl md:text-6xl lg:text-7xl text-background"
+                >
+                  Discover Our
+                  <br />
+                  <span className="text-primary italic">World</span>
+                </motion.h2>
+              </div>
+            </div>
+            <div className="flex items-end">
+              <TextReveal
+                className="font-body text-background/60 leading-relaxed text-sm md:text-base"
+                delay={0.3}
+              >
+                Discover a realm where opulence meets tranquility, where every moment is a symphony of relaxation and refinement. Our sanctuary of luxury and comfort awaits your arrival.
+              </TextReveal>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
             {facilities.map((f, i) => (
               <motion.div
                 key={f.label}
-                initial="hidden"
-                whileInView="visible"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                variants={fadeUp}
-                custom={i}
-                className="group relative overflow-hidden rounded-2xl aspect-[3/4] cursor-pointer"
+                transition={{ duration: 0.8, delay: i * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                className="group relative overflow-hidden rounded-3xl aspect-[3/4] cursor-pointer"
               >
-                <img
+                <motion.img
                   src={f.image}
                   alt={f.label}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.8 }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-                  <f.icon size={24} className="text-primary mb-2" />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 transform group-hover:-translate-y-2 transition-transform duration-500">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center mb-3">
+                    <f.icon size={20} className="text-primary" />
+                  </div>
                   <h3 className="font-heading text-background text-sm md:text-lg leading-tight">
                     {f.label}
                   </h3>
@@ -237,223 +353,258 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Special Activities */}
-      <section className="py-28 bg-background overflow-hidden">
+      {/* ─── SPECIAL ACTIVITIES ─── */}
+      <section className="py-32 bg-background overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              variants={fadeUp}
+              variants={stagger}
             >
-              <span className="font-body text-xs tracking-[0.4em] uppercase text-primary">
-                Special Activities
-              </span>
-              <h2 className="font-heading text-4xl md:text-5xl mt-3 mb-6">
-                in our Hotel
-              </h2>
-              <p className="font-body text-muted-foreground leading-relaxed mb-8">
+              <div className="overflow-hidden">
+                <motion.span variants={slideUp} className="block font-body text-[10px] tracking-[0.5em] uppercase text-primary mb-4">
+                  Special Activities
+                </motion.span>
+              </div>
+              <div className="overflow-hidden">
+                <motion.h2 variants={slideUp} className="font-heading text-4xl md:text-6xl leading-[1.05]">
+                  Curated{" "}
+                  <span className="text-primary italic">Experiences</span>
+                  <br />in our Hotel
+                </motion.h2>
+              </div>
+              <TextReveal className="font-body text-muted-foreground leading-relaxed mt-6 mb-8 text-sm md:text-base" delay={0.3}>
                 Discover a realm where opulence meets tranquility, where every moment is a symphony of relaxation and refinement. Our sanctuary of luxury and comfort awaits your arrival.
-              </p>
-              <Link
-                to="/dining"
-                className="inline-flex items-center gap-2 font-body text-sm tracking-wider uppercase text-primary hover:text-hotel-dark-gold transition-colors group"
+              </TextReveal>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8, duration: 0.6 }}
               >
-                Learn More
+                <Link
+                  to="/dining"
+                  className="inline-flex items-center gap-3 h-14 px-8 rounded-full bg-foreground text-background font-body text-sm tracking-wider uppercase hover:bg-primary transition-all duration-500 group"
+                >
+                  Learn More
+                  <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </Link>
+              </motion.div>
+            </motion.div>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={scaleReveal}
+              className="relative"
+            >
+              <div className="overflow-hidden rounded-3xl">
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 1 }}
+                  src={hotelBedroomWindow}
+                  alt="Room with mountain view"
+                  className="w-full h-[450px] md:h-[550px] object-cover"
+                />
+              </div>
+              {/* Floating price tag */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6, duration: 0.5, ease: "backOut" }}
+                className="absolute -bottom-6 -left-6 md:-left-10 bg-primary text-primary-foreground p-6 rounded-2xl shadow-2xl"
+              >
+                <span className="font-heading text-3xl">From $55</span>
+                <span className="block font-body text-xs mt-1 text-primary-foreground/70">per night</span>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIAL ─── */}
+      <section className="py-32 bg-secondary overflow-hidden">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <motion.div variants={slideUp} className="flex justify-center gap-1 mb-8">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.1, duration: 0.4, ease: "backOut" }}
+                >
+                  <Star size={22} className="text-primary fill-primary" />
+                </motion.div>
+              ))}
+            </motion.div>
+            <TextReveal
+              className="font-heading text-xl md:text-3xl italic leading-relaxed text-foreground"
+              delay={0.4}
+            >
+              Our stay at Timeless Morogoro was nothing short of extraordinary. From the moment we arrived, we were greeted with warmth and professionalism. The room was impeccably clean, the bed was incredibly comfortable, and the view from our window was breathtaking.
+            </TextReveal>
+            <motion.div variants={slideUp} className="mt-10">
+              <div className="w-12 h-[2px] bg-primary mx-auto mb-4" />
+              <p className="font-body text-sm text-muted-foreground tracking-wider uppercase">
+                — John and Mary P. from New York
+              </p>
+              <p className="font-body text-xs text-primary mt-2 tracking-[0.3em] uppercase">
+                Top-Rated Excellence
+              </p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── ROOM CAROUSEL ─── */}
+      <section className="py-32 bg-background overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-4">
+            <motion.span
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="font-body text-[10px] tracking-[0.5em] uppercase text-primary"
+            >
+              Our Luxury
+            </motion.span>
+          </div>
+          <div className="overflow-hidden text-center mb-12">
+            <motion.h2
+              initial={{ y: "100%" }}
+              whileInView={{ y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-heading text-5xl md:text-7xl lg:text-8xl"
+            >
+              Rooms
+            </motion.h2>
+          </div>
+          <RoomCarousel rooms={carouselRooms} />
+        </div>
+      </section>
+
+      {/* ─── GALLERY BENTO ─── */}
+      <section className="py-32 bg-foreground overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div>
+              <motion.span
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="font-body text-[10px] tracking-[0.5em] uppercase text-primary block mb-4"
+              >
+                Gallery
+              </motion.span>
+              <div className="overflow-hidden">
+                <motion.h2
+                  initial={{ y: "100%" }}
+                  whileInView={{ y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-heading text-4xl md:text-6xl text-background"
+                >
+                  Moments at
+                  <br />
+                  <span className="text-primary italic">Timeless</span>
+                </motion.h2>
+              </div>
+            </div>
+            <div className="flex items-end justify-end">
+              <Link
+                to="/gallery"
+                className="inline-flex items-center gap-3 h-14 px-8 rounded-full border border-background/20 text-background font-body text-sm tracking-wider uppercase hover:bg-background hover:text-foreground transition-all duration-500 group"
+              >
+                View Full Gallery
                 <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </Link>
-            </motion.div>
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={scaleIn}
-              className="overflow-hidden rounded-2xl"
-            >
-              <img
-                src={hotelBedroomWindow}
-                alt="Room with mountain view"
-                className="w-full h-[450px] object-cover hover:scale-105 transition-transform duration-1000"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonial */}
-      <section className="py-28 bg-secondary">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <div className="flex justify-center gap-1 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={20} className="text-primary fill-primary" />
-              ))}
             </div>
-            <p className="font-heading text-xl md:text-2xl italic leading-relaxed mb-8 text-foreground">
-              "Our stay at Timeless Morogoro was nothing short of extraordinary. From the moment we arrived, we were greeted with warmth and professionalism. The room was impeccably clean, the bed was incredibly comfortable, and the view from our window was breathtaking."
-            </p>
-            <div className="gold-divider mb-4" />
-            <p className="font-body text-sm text-muted-foreground tracking-wider uppercase">
-              — John and Mary P. from New York
-            </p>
-            <p className="font-body text-xs text-primary mt-2 tracking-widest uppercase">
-              Top-Rated Excellence
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Luxury Rooms — Lumea-inspired cards */}
-      <section className="py-28 bg-background">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="text-center mb-16"
-          >
-            <span className="font-body text-xs tracking-[0.4em] uppercase text-primary">
-              Our Luxury
-            </span>
-            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl mt-3">
-              Rooms
-            </h2>
-          </motion.div>
-
-          <div className="space-y-20">
-            {rooms.map((room, i) => (
-              <motion.div
-                key={room.name}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }}
-                variants={fadeUp}
-                custom={0}
-                className={`grid md:grid-cols-2 gap-8 items-center ${i % 2 === 1 ? "" : ""}`}
-              >
-                <div className={`overflow-hidden rounded-2xl ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                  <motion.img
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.8 }}
-                    src={room.image}
-                    alt={room.name}
-                    className="w-full h-[350px] md:h-[450px] object-cover"
-                  />
-                </div>
-                <div className={`${i % 2 === 1 ? "md:order-1 md:text-right" : ""}`}>
-                  <h3 className="font-heading text-3xl md:text-4xl mb-4">{room.name}</h3>
-                  <div className={`flex items-center gap-4 text-sm text-muted-foreground font-body mb-6 ${i % 2 === 1 ? "md:justify-end" : ""}`}>
-                    <span className="flex items-center gap-1">
-                      <Bed size={16} className="text-primary" />
-                      {room.beds}
-                    </span>
-                    <span className="text-primary">•</span>
-                    <span className="flex items-center gap-1">
-                      <Users size={16} className="text-primary" />
-                      {room.guests}
-                    </span>
-                  </div>
-                  <Link
-                    to="/rooms"
-                    className="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-primary text-primary-foreground font-body text-sm tracking-wider uppercase hover:bg-hotel-dark-gold transition-all duration-300 group"
-                  >
-                    View Details
-                    <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
           </div>
-        </div>
-      </section>
 
-      {/* Gallery Strip */}
-      <section className="py-28 bg-foreground">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="text-center mb-12"
-          >
-            <span className="font-body text-xs tracking-[0.4em] uppercase text-primary">Gallery</span>
-            <h2 className="font-heading text-4xl md:text-5xl mt-3 text-background">
-              Moments at Timeless
-            </h2>
-          </motion.div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Bento grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-4 h-[500px] md:h-[600px]">
             {galleryImages.map((img, i) => (
               <motion.div
                 key={i}
-                initial="hidden"
-                whileInView="visible"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                variants={fadeUp}
-                custom={i}
-                className="overflow-hidden rounded-2xl"
+                transition={{ duration: 0.7, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                className={`overflow-hidden rounded-2xl ${
+                  i === 0 ? "col-span-2 row-span-2" :
+                  i === 3 ? "col-span-2" : ""
+                }`}
               >
-                <img
-                  src={img}
-                  alt={`Gallery ${i + 1}`}
-                  className="w-full h-48 md:h-64 object-cover hover:scale-110 transition-transform duration-1000"
+                <motion.img
+                  whileHover={{ scale: 1.06 }}
+                  transition={{ duration: 0.8 }}
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-full object-cover cursor-pointer"
                 />
               </motion.div>
             ))}
           </div>
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="text-center mt-10"
-          >
-            <Link
-              to="/gallery"
-              className="inline-flex items-center gap-2 font-body text-sm tracking-wider uppercase text-primary hover:text-hotel-gold transition-colors group"
-            >
-              View Full Gallery
-              <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            </Link>
-          </motion.div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative py-32 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${hotelExterior})` }}
-        />
-        <div className="absolute inset-0 bg-foreground/60" />
+      {/* ─── CTA ─── */}
+      <section className="relative py-40 overflow-hidden">
+        <motion.div
+          className="absolute inset-0"
+          initial={{ scale: 1.1 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5 }}
+        >
+          <img
+            src={hotelExterior}
+            alt="Hotel exterior"
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-foreground/70" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-          >
-            <h2 className="font-heading text-4xl md:text-6xl text-background mb-6">
-              Ready for a <span className="text-primary italic">Timeless</span> Experience?
-            </h2>
-            <p className="font-body text-background/80 max-w-lg mx-auto mb-10">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <div className="overflow-hidden">
+              <motion.h2 variants={slideUp} className="font-heading text-4xl md:text-6xl lg:text-8xl text-background leading-[1.05]">
+                Ready for a
+              </motion.h2>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h2 variants={slideUp} className="font-heading text-4xl md:text-6xl lg:text-8xl text-primary italic leading-[1.05]">
+                Timeless
+              </motion.h2>
+            </div>
+            <div className="overflow-hidden">
+              <motion.h2 variants={slideUp} className="font-heading text-4xl md:text-6xl lg:text-8xl text-background leading-[1.05]">
+                Experience?
+              </motion.h2>
+            </div>
+            <motion.p variants={slideUp} className="font-body text-background/70 max-w-lg mx-auto mt-8 mb-12 text-sm md:text-base">
               Book your stay today and discover the finest hospitality in Morogoro.
-            </p>
-            <Link
-              to="/rooms"
-              className="inline-flex items-center gap-3 h-14 px-10 rounded-full bg-primary text-primary-foreground font-body text-sm tracking-wider uppercase hover:bg-hotel-dark-gold transition-all duration-300 group"
-            >
-              Reserve Your Room
-              <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            </Link>
+            </motion.p>
+            <motion.div variants={slideUp}>
+              <Link
+                to="/rooms"
+                className="inline-flex items-center gap-3 h-16 px-12 rounded-full bg-primary text-primary-foreground font-body text-sm tracking-wider uppercase hover:shadow-[0_0_60px_rgba(184,134,11,0.4)] transition-all duration-500 group"
+              >
+                Reserve Your Room
+                <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>
